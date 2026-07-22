@@ -35,20 +35,16 @@ export function useRoomRealtime(roomToken: string | undefined) {
 
   useEffect(() => {
     if (!roomToken) return;
+    const roomId = state?.room?.id;
+    if (!roomId) return;
     const channel = supabase
-      .channel(`room:${roomToken}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "game_rooms", filter: `public_token=eq.${roomToken}` }, () => reload())
-      .on("postgres_changes", { event: "*", schema: "public", table: "player_sessions" }, (payload) => {
-        const newRoomId = (payload.new as { room_id?: string })?.room_id ?? (payload.old as { room_id?: string })?.room_id;
-        if (newRoomId && roomIdRef.current && newRoomId === roomIdRef.current) reload();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "game_rounds" }, (payload) => {
-        const newRoomId = (payload.new as { room_id?: string })?.room_id ?? (payload.old as { room_id?: string })?.room_id;
-        if (newRoomId && roomIdRef.current && newRoomId === roomIdRef.current) reload();
-      })
+      .channel(`room:${roomId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "game_rooms", filter: `id=eq.${roomId}` }, () => reload())
+      .on("postgres_changes", { event: "*", schema: "public", table: "player_sessions", filter: `room_id=eq.${roomId}` }, () => reload())
+      .on("postgres_changes", { event: "*", schema: "public", table: "game_rounds", filter: `room_id=eq.${roomId}` }, () => reload())
       .subscribe((status) => setConnected(status === "SUBSCRIBED"));
     return () => { supabase.removeChannel(channel); };
-  }, [roomToken, reload]);
+  }, [roomToken, state?.room?.id, reload]);
 
   return { state, loading, error, connected, reload };
 }

@@ -240,6 +240,28 @@ export type Database = {
         }
         Returns: Json
       }
+      get_room_by_token: {
+        Args: { p_room_token: string }
+        Returns: {
+          board_size: number
+          created_at: string
+          current_round_id: string | null
+          expires_at: string
+          id: string
+          last_activity_at: string
+          public_token: string
+          rematch_requested_by: string | null
+          status: string
+          updated_at: string
+          winning_length: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "game_rooms"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       heartbeat: {
         Args: { p_room_token: string; p_session_token: string }
         Returns: undefined

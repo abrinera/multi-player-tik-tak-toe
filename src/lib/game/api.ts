@@ -72,15 +72,16 @@ export async function heartbeat(roomToken: string, sessionToken: string) {
 }
 
 export async function fetchRoomState(roomToken: string) {
-  const { data: room, error } = await supabase
-    .from("game_rooms").select("*").eq("public_token", roomToken).maybeSingle();
+  const { data: room, error } = await supabase.rpc("get_room_by_token", { p_room_token: roomToken });
   if (error) throw new Error(errMsg(error));
   if (!room) return null;
+  const roomRow = Array.isArray(room) ? room[0] : room;
+  if (!roomRow) return null;
   const [{ data: players }, { data: round }] = await Promise.all([
-    supabase.from("player_sessions").select("id,room_id,display_name,player_position,symbol,connection_status,session_wins,joined_at,last_seen_at").eq("room_id", room.id).order("player_position"),
-    room.current_round_id
-      ? supabase.from("game_rounds").select("*").eq("id", room.current_round_id).maybeSingle()
+    supabase.from("player_sessions").select("id,room_id,display_name,player_position,symbol,connection_status,session_wins,joined_at,last_seen_at").eq("room_id", roomRow.id).order("player_position"),
+    roomRow.current_round_id
+      ? supabase.from("game_rounds").select("*").eq("id", roomRow.current_round_id).maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
-  return { room, players: players ?? [], round: round ?? null };
+  return { room: roomRow, players: players ?? [], round: round ?? null };
 }
