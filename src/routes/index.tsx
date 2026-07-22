@@ -57,8 +57,7 @@ function Home() {
     <div className="min-h-screen">
       <header className="border-b-[4px] border-black bg-[var(--neo-yellow)]">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center border-[3px] border-black bg-white neo-shadow-sm font-display text-lg">✕</div>
+          <div className="flex items-center">
             <span className="font-display text-xl sm:text-2xl">TIC-TAC-TOE LIVE</span>
           </div>
           <span className="hidden sm:inline-flex border-[3px] border-black bg-white px-3 py-1 text-xs font-bold uppercase neo-shadow-sm">Real-time</span>
