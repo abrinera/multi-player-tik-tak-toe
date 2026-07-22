@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       { title: "Tic-Tac-Toe Live — Real-time multiplayer" },
       { name: "description", content: "Create a private Tic-Tac-Toe room, share the link, and play live from any device. 3×3, 5×5 or 7×7 boards." },
       { property: "og:title", content: "Tic-Tac-Toe Live — Real-time multiplayer" },
-      { property: "og:description", content: "Create a private Tic-Tac-Toe room, share the link, and play live from any device." },
+      { property: "og:description", content: "Create a private Tic-Tac-Toe room, share the link, and play live from any device. 3×3, 5×5 or 7×7 boards." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
