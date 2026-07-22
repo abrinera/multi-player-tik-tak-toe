@@ -77,7 +77,7 @@ export async function fetchRoomState(roomToken: string) {
   if (error) throw new Error(errMsg(error));
   if (!room) return null;
   const [{ data: players }, { data: round }] = await Promise.all([
-    supabase.from("player_sessions").select("*").eq("room_id", room.id).order("player_position"),
+    supabase.from("player_sessions").select("id,room_id,display_name,player_position,symbol,connection_status,session_wins,joined_at,last_seen_at").eq("room_id", room.id).order("player_position"),
     room.current_round_id
       ? supabase.from("game_rounds").select("*").eq("id", room.current_round_id).maybeSingle()
       : Promise.resolve({ data: null }),
