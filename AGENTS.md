@@ -78,18 +78,24 @@ Observed conventions (follow unless the user says otherwise):
   currently unused by the app.
 - Path alias `@/` → `src/`. Toasts use `sonner` directly. Formatting: Prettier (100 cols, double quotes,
   trailing commas).
-- Package manager: the committed lockfile is `bun.lock` (README's `npm` instructions are template text).
+- Package managers: two lockfiles are committed — `bun.lock` (Lovable) and `package-lock.json`
+  (the user's local npm install). They can drift; ask the user before adding or upgrading dependencies.
+- Running the dev server may rewrite `src/routeTree.gen.ts` (local router-plugin version). Don't
+  commit that diff unless a route actually changed.
+- README screenshots live in `docs/screenshots/`. Re-capturing them plays a real game against the
+  connected Supabase project and writes rows, so ask the user first.
 
-## Commands (from package.json — none were run during the documentation baseline)
+## Commands (from package.json)
 
 | Purpose | Command |
 | --- | --- |
-| Dev server | `bun run dev` (`vite dev`) |
-| Production build | `bun run build` · dev-mode build `bun run build:dev` |
-| Preview build | `bun run preview` |
-| Lint | `bun run lint` |
-| Format (writes files) | `bun run format` |
-| Type-check (no script) | `bunx tsc --noEmit` |
+| Dev server (port 8080) | `npm run dev` (`vite dev`) |
+| Production build | `npm run build` · dev-mode build `npm run build:dev` |
+| Preview build | `npm run preview` |
+| Lint | `npm run lint` |
+| Format (writes files) | `npm run format` |
+| Type-check (no script) | `npx tsc --noEmit` |
 
-There is no automated test suite and no CI workflow. Running anything needs `node_modules`
-(absent at the time of the baseline) and the Supabase variables listed in MASTER.md.
+`bun run <script>` works too. There is no automated test suite and no CI workflow. Only `npm run dev`
+has been run so far (2026-10-13); see the Verification Log in MASTER.md. The app needs the Supabase
+variables listed in MASTER.md.
