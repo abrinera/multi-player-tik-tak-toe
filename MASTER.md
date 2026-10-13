@@ -15,19 +15,19 @@ and the source disagree, the source wins and this document must be corrected.
 | Item | Value |
 | --- | --- |
 | Repository | `tik-tak-toe` (local path `C:\Projects\001ERA\tik-tak-toe`), remote `origin` |
-| Analysis scope | All 93 Git-tracked files (`git ls-files`), plus root listing of untracked/ignored entries |
+| Analysis scope | All Git-tracked files (93 at the baseline; `package-lock.json` added by the user in `ea520c6`; `docs/screenshots/` and README rewrite added in DOC-README-1), plus root listing of untracked/ignored entries |
 | Project type | Full-stack web application: TanStack Start SSR front end + Supabase (Postgres, Realtime) back end, built and published through Lovable |
 | Purpose | Create a private Tic-Tac-Toe room (3×3, 5×5, 7×7), share an invite link, and play live against one other guest with rematches |
-| Branch / HEAD | `main` @ `d1c234ce72920038ebc8081357eb509f8dfd6ea6` ("Removed the cross from header", 2026-07-22 08:51 UTC) |
-| Tracking | `main...origin/main`, no ahead/behind shown (local refs only; no fetch was performed) |
-| Working tree at analysis start | Clean; no untracked files. `node_modules/` absent |
+| Branch / HEAD | `main` @ `ea520c6` ("Docs: Added master file", by the user; adds AGENTS.md, MASTER.md, package-lock.json). Baseline analysis was done at `d1c234c` |
+| Tracking | Not re-checked after `ea520c6` (no fetch performed) |
+| Working tree | At DOC-README-1 start: clean, `node_modules/` present (installed by the user with npm). DOC-README-1 adds `docs/screenshots/` and edits README.md, MASTER.md, AGENTS.md (uncommitted) |
 | Last reconciliation | 2026-10-13, Bangladesh Standard Time (UTC+06:00) |
 | Languages | TypeScript (TSX), SQL (PL/pgSQL), CSS |
 | Frameworks / runtime | React 19.2, TanStack Start 1.168 / Router 1.170, React Query 5 (provider only), Tailwind CSS 4.2, Supabase JS 2.110; Vite 8 + nitro 3 beta (Cloudflare default target per [vite.config.ts](vite.config.ts) comment) |
-| Package / build tools | Bun (`bun.lock`, [bunfig.toml](bunfig.toml)), Vite via `@lovable.dev/vite-tanstack-config` 2.7.7, ESLint 9, Prettier 3, TypeScript 5.9 (resolved versions from `bun.lock`) |
+| Package / build tools | Two committed lockfiles: `bun.lock` (Lovable; [bunfig.toml](bunfig.toml)) and `package-lock.json` (npm, added by the user; the local install resolves Vite 8.3.4 vs 8.0.16 in `bun.lock`). Vite via `@lovable.dev/vite-tanstack-config` 2.7.7, ESLint 9, Prettier 3, TypeScript 5.9 |
 | Active work | None established by evidence. Git history (all commits authored by `gpt-engineer-app[bot]` except the template commit) ends at an MVP plus security and header tweaks |
 | Coverage | Every authored file under `src/`, `supabase/`, root configs and docs was read, except the 46 shadcn files in `src/components/ui/`, which were inventoried and checked for imports but not reviewed line by line. `.env` was inspected for variable **names** only. `bun.lock` was searched, not read in full |
-| Limitations | No dependencies installed; no build, lint, type-check, test, or runtime check was run. The live Supabase database, Realtime configuration, Lovable hosting, and the contents of `@lovable.dev/vite-tanstack-config` were not inspected, so whether the deployed database matches the migrations is **Unknown** |
+| Limitations | No build, lint, type-check, or automated test has been run. The only runtime evidence is one scripted 3×3 game on the dev server (DOC-README-1, see Verification Log). The live Supabase database, Realtime configuration, Lovable hosting, and the contents of `@lovable.dev/vite-tanstack-config` were not inspected, so whether the deployed database matches the migrations is **Unknown** |
 
 ## Source of Truth and Update Rules
 
@@ -60,25 +60,28 @@ and the source disagree, the source wins and this document must be corrected.
 | Deferred | Explicitly accepted work outside the current scope |
 | Unknown | Insufficient evidence |
 
-Implementation and verification are separate dimensions. As of the baseline, **nothing in this
-repository has execution evidence**; every row below is *Not verified* unless stated.
+Implementation and verification are separate dimensions. The only execution evidence so far is one
+scripted two-player 3×3 game on the local dev server against the live Supabase project
+(2026-10-13, DOC-README-1). Rows it exercised are *Partially verified*; everything else is
+*Not verified*.
 
 ## Current Codebase Snapshot
 
 | Subsystem | Status | Evidence | Verification |
 | --- | --- | --- | --- |
-| Home / create room | Implemented | [src/routes/index.tsx](src/routes/index.tsx) → `create_game_room` RPC | Not verified |
-| Join, waiting room, share link | Implemented | [src/routes/game.$roomToken.tsx](src/routes/game.$roomToken.tsx) `JoinScreen`, `WaitingRoom` | Not verified |
-| Gameplay (moves, win/draw) | Implemented, server-authoritative | `make_move`, `_check_win` in [migration 1](supabase/migrations/20260722070428_4fad66df-3b09-4ca2-a4c0-7f502d39a90d.sql) | Not verified |
-| Rematch with symbol swap | Implemented | `request_rematch` RPC; `GameResult` UI | Not verified |
-| Leave / cancel / forfeit | Implemented | `leave_room` RPC; `onLeave`, `onCancel` | Not verified |
+| Home / create room | Implemented | [src/routes/index.tsx](src/routes/index.tsx) → `create_game_room` RPC | Partially verified (3×3 only) |
+| Join, waiting room, share link | Implemented | [src/routes/game.$roomToken.tsx](src/routes/game.$roomToken.tsx) `JoinScreen`, `WaitingRoom` | Partially verified (join and waiting room rendered; copy/share/WhatsApp buttons not exercised) |
+| Gameplay (moves, win/draw) | Implemented, server-authoritative | `make_move`, `_check_win` in [migration 1](supabase/migrations/20260722070428_4fad66df-3b09-4ca2-a4c0-7f502d39a90d.sql) | Partially verified (one diagonal win on 3×3; draw, 5×5, 7×7 not run) |
+| Rematch with symbol swap | Implemented | `request_rematch` RPC; `GameResult` UI | Partially verified (request shown to opponent; acceptance/symbol swap not run) |
+| Leave / cancel / forfeit | Implemented | `leave_room` RPC; `onLeave`, `onCancel` | Not verified (post-game "Leave Game" was clicked; result not checked) |
 | Session recovery after refresh | Implemented | [src/lib/game/session.ts](src/lib/game/session.ts) localStorage token + `join_game_room` hash match | Not verified |
-| Real-time sync | Implemented (refetch-on-change) | [src/hooks/useRoomRealtime.ts](src/hooks/useRoomRealtime.ts) Postgres-changes channel | Not verified |
+| Real-time sync | Implemented (refetch-on-change) | [src/hooks/useRoomRealtime.ts](src/hooks/useRoomRealtime.ts) Postgres-changes channel | Partially verified (both views updated after every move; "Live" badge shown) |
 | Presence / connection status | Partially implemented | `heartbeat` only sets `connected`/keeps `left`; nothing sets `reconnecting`/`disconnected` | Not verified |
 | Room expiry | Partially implemented | `expires_at` set by RPCs; only `join_game_room` marks `expired`; no scheduled job | Not verified |
 | Persistence | Supabase Postgres: `game_rooms`, `player_sessions`, `game_rounds`, `game_moves` | 4 migrations | Live DB state Unknown |
 | Auth | None (anonymous guests). Supabase Auth wiring is Inactive template code | `auth-attacher.ts`, `auth-middleware.ts` | — |
-| SSR shell & error handling | Implemented | [src/server.ts](src/server.ts), [src/start.ts](src/start.ts), [src/routes/__root.tsx](src/routes/__root.tsx) | Not verified |
+| SSR shell & error handling | Implemented; game route SSR fails (C7) | [src/server.ts](src/server.ts), [src/start.ts](src/start.ts), [src/routes/__root.tsx](src/routes/__root.tsx) | Partially verified (dev server: `/` renders; `/game/...` falls back to client rendering) |
+| README & screenshots | Implemented | [README.md](README.md), [docs/screenshots/](docs/screenshots/) | Images reviewed visually |
 | shadcn UI kit (46 files) | Inactive (no app imports) | `src/components/ui/` | — |
 | Client win detection | Inactive (no callers) | [src/lib/game/winDetection.ts](src/lib/game/winDetection.ts) | — |
 | Tests / CI | None present | No test files, no `.github/` | — |
@@ -87,13 +90,13 @@ repository has execution evidence**; every row below is *Not verified* unless st
 
 | Field | Value |
 | --- | --- |
-| Work item | DOC-BASELINE-1 — documentation baseline |
-| Objective | Analyse the repository and create `MASTER.md`; extend `AGENTS.md` with standing rules and repository guidance |
-| Scope / status | Documentation only — Complete |
-| Affected files | [AGENTS.md](AGENTS.md) (existing Lovable block preserved verbatim, guidance appended), [MASTER.md](MASTER.md) (new) |
-| Behavior / architecture changes | None |
-| Checks performed | Source inspection; read-only Git commands (`status`, `branch`, `log`, `ls-files`, `rev-parse`, `show --stat`, `remote`); link/inventory cross-check of these docs |
-| Remaining work / limitations | No build, lint, type-check, or runtime check was run; live database not inspected. Issues found are recorded under Known Issues for the user to triage — none were fixed |
+| Work item | DOC-README-1 — rewrite README with screenshots |
+| Objective | Replace the Lovable template README with project documentation and real screenshots |
+| Scope / status | Documentation and image assets only — Complete (uncommitted) |
+| Affected files | [README.md](README.md) (rewritten), `docs/screenshots/*.png` (6 new), [MASTER.md](MASTER.md), [AGENTS.md](AGENTS.md) (lockfile/package-manager note) |
+| Behavior / architecture changes | None. Running the dev server regenerated `src/routeTree.gen.ts` with an extra type-registration block; that change was reverted with `git restore` |
+| Checks performed | Dev server run (`npm run dev`, port 8080); one scripted two-player 3×3 game against the live Supabase project via headless Chrome (CDP); screenshots inspected; dev-server log reviewed. Script kept outside the repo |
+| Remaining work / limitations | 3 test rooms were created in the live database (see Verification Log). C7 (SSR `localStorage`) confirmed but not fixed. No build, lint, type-check, or tests run. Previous work item: DOC-BASELINE-1 (see Change Log) |
 
 ---
 
@@ -118,7 +121,7 @@ functions or API routes.
   Prettier as an ESLint rule, bans the `server-only` import, `no-unused-vars` off.
 - [.prettierrc](.prettierrc) / [.prettierignore](.prettierignore): width 100, double quotes, trailing
   commas; ignores lockfiles and `routeTree.gen.ts`. Note: much of the hand-written game code is not
-  Prettier-formatted (long single lines), so `bun run lint` would likely report Prettier violations —
+  Prettier-formatted (long single lines), so `npm run lint` would likely report Prettier violations —
   **not verified**.
 - [bunfig.toml](bunfig.toml): text lockfile, 24h minimum release age with listed `@lovable.dev/*`
   exclusions.
@@ -157,14 +160,23 @@ tik-tak-toe/
 ├── .prettierrc               # Prettier style
 ├── AGENTS.md                 # Agent rules; contains Lovable-managed block (LOVABLE:BEGIN/END)
 ├── MASTER.md                 # This record
-├── README.md                 # Lovable template README (npm instructions; repo actually uses bun.lock)
-├── bun.lock                  # Generated lockfile (Bun text format)
+├── README.md                 # Project README: features, screenshots, how it works, setup, scripts, structure, database, limitations
+├── bun.lock                  # Generated lockfile (Bun text format; used by Lovable)
+├── package-lock.json         # Generated npm lockfile (added by the user in ea520c6); can drift from bun.lock
 ├── bunfig.toml               # Bun install policy (24h release-age guard)
 ├── components.json           # shadcn CLI config
 ├── eslint.config.js          # ESLint flat config
 ├── package.json              # Scripts and dependency manifest (name still "tanstack_start_ts")
 ├── tsconfig.json             # TypeScript config, @/ alias
 ├── vite.config.ts            # Lovable Vite/TanStack config; server entry → src/server.ts
+├── docs/
+│   └── screenshots/          # README images captured 2026-10-13 from the dev server (one real 3×3 game)
+│       ├── home.png          # Desktop home page with name entered
+│       ├── home-mobile.png   # Home page at 390px width
+│       ├── waiting-room.png  # Host waiting room with invite link (test room, since finished)
+│       ├── join.png          # Guest join screen
+│       ├── game-board.png    # Mid-game board, X to move
+│       └── result-rematch.png # Winner view: highlighted line + opponent's rematch request
 ├── public/
 │   └── favicon.ico           # Site icon, linked from __root.tsx
 ├── src/
@@ -217,8 +229,8 @@ tik-tak-toe/
         └── 20260722083412_…sql # Revoke public_token column SELECT; add get_room_by_token RPC
 ```
 
-**Not tracked / generated / local-only by role:** `node_modules/` (dependencies, absent at
-analysis), `dist/`, `.output/`, `.vinxi/`, `.nitro/`, `.tanstack/` (build and cache output),
+**Not tracked / generated / local-only by role:** `node_modules/` (dependencies; installed
+locally with npm since `ea520c6`), `dist/`, `.output/`, `.vinxi/`, `.nitro/`, `.tanstack/` (build and cache output),
 `.wrangler/`, `.dev.vars`, `*.local` (local Cloudflare/env overrides), `.git/`.
 
 ## Entry Points and Execution Architecture
@@ -250,8 +262,9 @@ analysis), `dist/`, `.output/`, `.vinxi/`, `.nitro/`, `.tanstack/` (build and ca
 - `src/integrations/supabase/*` is generated infrastructure.
 
 **SSR.** Both routes use the default SSR mode; nothing sets `ssr: false`. Data loading happens only
-in client effects, so the server renders the `LOADING…` card for `/game/...`. See Known Issues S1
-about `localStorage` access during that render.
+in client effects, so the server is meant to render the `LOADING…` card for `/game/...`. In practice
+that server render throws and React falls back to client rendering (Known Issues C7). `/` renders on
+the server normally.
 
 ## Routes
 
@@ -425,14 +438,20 @@ secret added there would be committed. No feature flags exist.
 ## Test Inventory and Verification Baseline
 
 - **Automated tests:** none (no `*.test.*` / `*.spec.*`, no test runner dependency, no `test` script).
-- **Available commands:** `bun run lint`, `bun run build`, `bun run build:dev`, `bun run dev`,
-  `bun run preview`, `bunx tsc --noEmit` (no script). Dependencies must be installed first.
-- **Historical results:** none recorded anywhere in the repository.
-- **This task:** source inspection and read-only Git commands only. No compilation, lint, tests,
-  runtime, or Supabase checks were run, so all behavior above is **Not verified**.
-- **Highest-value checks to add:** type-check and lint; a manual two-browser play-through on each
-  board size (create, join, win, draw, rematch, forfeit, refresh recovery); SQL-level tests of the
-  RPCs (turn order, stale turn, duplicate action, rematch, privilege checks — see S2).
+- **Available commands:** `npm run lint` / `bun run lint`, `build`, `build:dev`, `dev`, `preview`;
+  `npx tsc --noEmit` (no script). Dev server listens on port 8080.
+- **Historical results:** none recorded in the repository before DOC-BASELINE-1.
+- **DOC-BASELINE-1:** source inspection and read-only Git only.
+- **DOC-README-1 runtime check:** one scripted two-player game on the dev server against the live
+  Supabase project, driven by headless Chrome over the DevTools protocol (script kept outside the
+  repo): create 3×3 room → waiting room → guest joins via link → 5 moves → diagonal win with
+  highlighted cells and win counter → rematch request shown to the winner → both leave. Also confirmed
+  C7 from the dev-server log. This is runtime evidence for that one path only. It is not a build,
+  lint, type-check, or production check.
+- **Not yet exercised:** draw, 5×5/7×7, rematch acceptance and symbol swap, forfeit, cancel, refresh
+  recovery, expiry, copy/share buttons, any production build.
+- **Highest-value checks to add:** type-check and lint; the unexercised paths above; SQL-level tests of
+  the RPCs (turn order, stale turn, duplicate action, rematch, privilege checks — see S2).
 
 ## Known Issues
 
@@ -446,12 +465,13 @@ Confirmed from source (behavioral impact not executed):
 | C4 | Any `get_room_by_token` failure (for example network) leaves `state` null and shows "INVALID LINK" | `GamePage` condition `error === "not_found" \|\| (!state && !loading)` |
 | C5 | Errors from the players/round queries in `fetchRoomState` are discarded, so a failed read can look like an empty room and show the Join screen | [api.ts](src/lib/game/api.ts) `fetchRoomState` |
 | C6 | `invalid_round` RPC error has no friendly mapping | `errMsg` map |
+| C7 | **Confirmed at runtime (dev server, 2026-10-13; formerly S1).** Server rendering of `/game/$roomToken` throws `ReferenceError: localStorage is not defined` on every load: `GamePage`'s `useState` initializer calls `getStoredSessionId` during render. React logs "Switched to client rendering because the server rendering errored" and the page then works in the browser. Impact: no server-rendered HTML for game pages. Whether the room's meta tags (used for link previews) still reach crawlers in production is Unknown | Dev-server log during DOC-README-1; [game.$roomToken.tsx](src/routes/game.$roomToken.tsx) `GamePage`; [session.ts](src/lib/game/session.ts) |
 
 Suspected risks (not verified):
 
 | ID | Risk | Reasoning / how to verify |
 | --- | --- | --- |
-| S1 | Server-side render of `/game/$roomToken` may throw `localStorage is not defined`: `GamePage`'s `useState` initializer calls `getStoredSessionId` during render, and the route uses default SSR | Load a game URL directly and check server logs / whether the root error component flashes. The Lovable config may change SSR defaults (not inspected) |
+| S1 | Promoted to C7 on 2026-10-13 | — |
 | S2 | Room tokens may still be enumerable. Migration 4 revokes only column-level `SELECT (public_token)`, but migration 1 granted table-level `SELECT` on `game_rooms`; in PostgreSQL a column-level REVOKE does not remove a table-level grant. Migration 3 did this correctly for `player_sessions` (table REVOKE then column GRANT). If enumerable, anyone could list rooms and join waiting games. Realtime `game_rooms` payloads may also carry `public_token` | Query `game_rooms?select=public_token` with the anon key against a non-production project, or inspect `information_schema.role_table_grants` |
 | S3 | Realtime reloads are not ordered; overlapping `fetchRoomState` calls can resolve out of order and briefly show stale state. Each move emits several change events, each causing 3 requests | `useRoomRealtime.reload` |
 | S4 | If a host loses `localStorage` while waiting, the join screen lets them join their own room as player 2 with a new token | `GamePage` → `JoinScreen`, `join_game_room` |
@@ -470,8 +490,11 @@ Suspected risks (not verified):
   alongside generated `types.ts`.
 - `_check_win` body duplicated across migrations 1 and 3 (expected for migrations, but changes must go
   in a new migration).
-- `package.json` name and README remain template defaults; README's npm instructions conflict with the
-  Bun lockfile.
+- `package.json` name is still the template default (`tanstack_start_ts`).
+- Two lockfiles (`bun.lock` for Lovable, `package-lock.json` for local npm) resolve different versions
+  (for example Vite 8.0.16 vs 8.3.4) and will drift whenever dependencies change in only one tool.
+- Running the dev server with the npm-installed router plugin rewrites `src/routeTree.gen.ts` (adds a
+  `Register` type block), producing an unrelated diff. It was reverted in DOC-README-1.
 
 ## Deferred Decisions
 
@@ -484,32 +507,34 @@ are suggestions awaiting triage, not accepted scope.
 
 | Workstream | Item | Implementation | Verification | Evidence | Remaining |
 | --- | --- | --- | --- | --- | --- |
-| Rooms | Create room, 3 board sizes | Implemented | Not verified | `index.tsx`, `create_game_room` | — |
-| Rooms | Invite/share link | Implemented | Not verified | `WaitingRoom` | — |
+| Rooms | Create room, 3 board sizes | Implemented | Partially verified (3×3, 2026-10-13 dev) | `index.tsx`, `create_game_room` | 5×5 / 7×7 unexercised |
+| Rooms | Invite/share link | Implemented | Partially verified (link shown and used to join) | `WaitingRoom` | Copy/share/WhatsApp unexercised |
 | Rooms | Cancel waiting room | Implemented | Not verified | `leave_room` | — |
 | Rooms | Expiry | Partially implemented | Not verified | C2 | Cleanup/expiry enforcement not built |
-| Players | Join, symbol assignment | Implemented | Not verified | `join_game_room` | — |
+| Players | Join, symbol assignment | Implemented | Partially verified (one join; X assigned to the guest) | `join_game_room` | — |
 | Players | Refresh/session recovery | Implemented | Not verified | `session.ts`, hash match | S4 edge case |
 | Players | Presence/reconnecting status | Partially implemented | Not verified | C1 | No server transition to reconnecting/disconnected |
-| Gameplay | Moves, turn order, stale-turn guard | Implemented | Not verified | `make_move` | C3 ordering |
-| Gameplay | Win/draw detection (server) | Implemented | Not verified | `_check_win` | — |
-| Gameplay | Session win counter | Implemented | Not verified | `session_wins` | — |
-| Gameplay | Rematch with symbol swap | Implemented | Not verified | `request_rematch` | — |
+| Gameplay | Moves, turn order, stale-turn guard | Implemented | Partially verified (moves and turn order; an early out-of-turn move during script debugging was rejected with "It's not your turn") | `make_move` | C3 ordering; stale-turn path not isolated |
+| Gameplay | Win/draw detection (server) | Implemented | Partially verified (diagonal win, winning cells highlighted) | `_check_win` | Draw unexercised |
+| Gameplay | Session win counter | Implemented | Partially verified (0 → 1 after win) | `session_wins` | — |
+| Gameplay | Rematch with symbol swap | Implemented | Partially verified (request only) | `request_rematch` | Acceptance/swap unexercised |
 | Gameplay | Forfeit | Implemented | Not verified | `leave_room(p_forfeit)` | — |
-| Sync | Realtime refetch | Implemented | Not verified | `useRoomRealtime` | S3 |
+| Sync | Realtime refetch | Implemented | Partially verified (one game, two clients) | `useRoomRealtime` | S3 |
 | Security | Token hash hidden from clients | Implemented | Not verified | migration 3 | — |
 | Security | Room token not enumerable | Partially implemented | Not verified | migration 4 | S2 |
-| Platform | SSR shell and error pages | Implemented | Not verified | `server.ts`, `start.ts`, `__root.tsx` | S1 |
+| Platform | SSR shell and error pages | Implemented | Partially verified (dev) | `server.ts`, `start.ts`, `__root.tsx` | C7: game route SSR fails |
+| Docs | README with screenshots | Implemented | Images reviewed | `README.md`, `docs/screenshots/` | Re-capture when the UI changes |
 | Quality | Tests / CI | Not started | — | none | No accepted plan |
 
 ## Pending Requests and Handoff
 
-- No outstanding user requests are established beyond this documentation baseline.
-- Open questions for the user: whether to address S1 and S2 (the two potentially user-visible or
-  security-relevant items) and whether to prune the unused template code and dependencies.
-- Next actionable steps if work resumes: install dependencies; run `bunx tsc --noEmit` and
-  `bun run lint` to set a verification baseline; check S1 and S2 against a non-production Supabase
-  project before changing anything.
+- No outstanding user requests. DOC-README-1 changes (README, screenshots, doc updates) are uncommitted.
+- Open questions for the user: whether to fix C7 (SSR `localStorage`) and investigate S2 (room-token
+  enumeration); whether to prune unused template code and dependencies; whether to keep one lockfile.
+- Next actionable steps if work resumes: run `npx tsc --noEmit` and `npm run lint` to set a
+  verification baseline; check S2 against a non-production Supabase project before changing anything.
+- Screenshot refresh: the capture script lives outside the repo. Re-capturing creates real rooms in the
+  connected Supabase project.
 
 ## Future Update Workflow and Architecture Drift
 
@@ -531,6 +556,7 @@ migrations, and callers → **change** → **reconcile** the sections below agai
 | Server entry / middleware | Entry Points, Error Handling, Authentication |
 | Adding tests or CI | Test Inventory, CI section, Snapshot, Progress, AGENTS.md commands |
 | Removing inactive code | Tree, Inventory "Inactive" list, Technical Debt, Stack dependency lists |
+| Visible UI change (screens, copy, styling) | README screenshots in `docs/screenshots/` and README feature text |
 | Docs-only change | Dated reconciliation note in Change Log stating no behavior impact |
 
 ## Verification Log
@@ -541,10 +567,17 @@ migrations, and callers → **change** → **reconcile** the sections below agai
 | 2026-10-13 | DOC-BASELINE-1 / source | Read all authored source, SQL migrations, configs, docs; import/caller tracing with ripgrep | Findings recorded above | `components/ui/*` inventoried, not reviewed line by line; `.env` names only |
 | 2026-10-13 | DOC-BASELINE-1 / docs | Cross-checked tree against `git ls-files`; checked relative links and headings in AGENTS.md and MASTER.md | Consistent | Manual check, no Markdown linter |
 | 2026-10-13 | DOC-BASELINE-1 | Build, lint, type-check, tests, runtime, Supabase | **Not run** (documentation task; `node_modules` absent) | — |
+| 2026-10-13 | DOC-README-1 / runtime | `npm run dev` (Vite 8.3.4, port 8080; dependencies installed by the user via npm) | Server started; `/` and `/game/<token>` served | Dev mode only; no production build |
+| 2026-10-13 | DOC-README-1 / end-to-end | Headless Chrome (CDP) script: two isolated browser contexts play one 3×3 game against the live Supabase project | Pass on final run: create, waiting room, join, 5 synced moves, diagonal win, win counter, rematch request visible to the other player, both "Leave Game". Earlier runs failed on script bugs (typing before hydration; a mis-encoded `·` character; `innerText` uppercase). Those were not app defects | One path, one board size. 3 test rooms written to the live DB: one left `active` after 2 moves, one `completed` with a pending rematch request, one `completed` with both players `left` |
+| 2026-10-13 | DOC-README-1 / SSR | Reviewed dev-server log during the runs | `ReferenceError: localStorage is not defined` on each server render of `/game/...`, then "Switched to client rendering" → recorded as C7 | Dev server; production behavior not checked |
+| 2026-10-13 | DOC-README-1 / assets | Viewed all 6 screenshots | Correct screens, no toasts or debugging artifacts | Visual check only |
+| 2026-10-13 | DOC-README-1 / repo | `git status --short` after the runs; `git diff src/routeTree.gen.ts`; `git restore src/routeTree.gen.ts` | Only README.md, MASTER.md, AGENTS.md and `docs/` changed | — |
 
 ## Change Log
 
 | Date | Work item | Change | Affected files / areas | Verification |
 | --- | --- | --- | --- | --- |
 | 2026-10-13 | DOC-BASELINE-1 | Created the codebase analysis and implementation record; added standing agent rules, generated-file list, conventions, and commands to AGENTS.md while preserving the Lovable-managed block. No application files changed | `MASTER.md` (new), `AGENTS.md` | Source inspection and read-only Git only |
+| 2026-10-13 | (user) | Commit `ea520c6` "Docs: Added master file" added AGENTS.md, MASTER.md and `package-lock.json` | Repository root | Recorded from `git show --stat` |
+| 2026-10-13 | DOC-README-1 | Rewrote README from the Lovable template into project documentation; added 6 screenshots from a real game; promoted S1 to confirmed C7; recorded the second lockfile; updated verification statuses and AGENTS.md package-manager guidance. No application code changed | `README.md`, `docs/screenshots/`, `MASTER.md`, `AGENTS.md` | See Verification Log, DOC-README-1 rows |
 
